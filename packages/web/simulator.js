@@ -133,49 +133,9 @@ class SimulatorElement extends HTMLElement {
           z-index: 10;
         }
 
-        .status-bar {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 44px;
-          background: rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0 20px;
-          font-size: 14px;
-          font-weight: 600;
-          z-index: 5;
-        }
-
-        .status-left {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-
-        .status-right {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-
-        .signal-dots {
-          display: flex;
-          gap: 2px;
-        }
-
-        .signal-dot {
-          width: 4px;
-          height: 4px;
-          border-radius: 50%;
-          background: #000;
-        }
-
         .content-iframe {
           position: absolute;
-          top: 44px;
+          top: 0;
           left: 0;
           right: 0;
           bottom: 20px;
@@ -197,7 +157,7 @@ class SimulatorElement extends HTMLElement {
 
         .loading-screen {
           position: absolute;
-          top: 44px;
+          top: 0;
           left: 0;
           right: 0;
           bottom: 20px;
@@ -233,21 +193,6 @@ class SimulatorElement extends HTMLElement {
         <div class="screen">
           <div class="dynamic-island"></div>
           
-          <div class="status-bar">
-            <div class="status-left">
-              <span>9:41</span>
-            </div>
-            <div class="status-right">
-              <div class="signal-dots">
-                <div class="signal-dot"></div>
-                <div class="signal-dot"></div>
-                <div class="signal-dot"></div>
-                <div class="signal-dot"></div>
-              </div>
-              <span>WiFi</span>
-            </div>
-          </div>
-
           <div class="content-area">
             <div class="loading-screen" id="loadingScreen">
               <div class="apple-logo"></div>
