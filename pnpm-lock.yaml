@@ -19,6 +19,8 @@ importers:
         specifier: ^1.74.0
         version: 1.100.0
 
+  packages/web: {}
+
 packages:
 
   '@types/vscode@1.100.0':

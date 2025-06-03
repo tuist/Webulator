@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 let server = null;
 let webviewPanel = null;
@@ -52,11 +53,13 @@ function startWebulator(context) {
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true,
-                    localResourceRoots: []
+                    localResourceRoots: [
+                        vscode.Uri.file(path.join(context.extensionPath, '..', 'web'))
+                    ]
                 }
             );
 
-            webviewPanel.webview.html = getWebviewContent();
+            webviewPanel.webview.html = getWebviewContent(context, webviewPanel.webview);
             
             // Handle panel disposal
             webviewPanel.onDidDispose(() => {
@@ -164,178 +167,64 @@ function startHttpServer() {
     }
 }
 
-function getWebviewContent() {
+function getWebviewContent(context, webview) {
+    // Read the simulator component
+    let simulatorScript = '';
+    try {
+        const simulatorPath = path.join(context.extensionPath, '..', 'web', 'simulator.js');
+        simulatorScript = fs.readFileSync(simulatorPath, 'utf8');
+    } catch (error) {
+        console.error('Could not load simulator component:', error);
+        simulatorScript = '// Simulator component could not be loaded';
+    }
+
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Webulator</title>
+        <title>Webulator Simulator</title>
         <style>
             body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                padding: 20px;
+                margin: 0;
+                padding: 0;
                 background-color: var(--vscode-editor-background);
                 color: var(--vscode-editor-foreground);
-                margin: 0;
-            }
-            .container {
-                max-width: 800px;
-                margin: 0 auto;
-            }
-            h1 {
-                color: var(--vscode-foreground);
-                border-bottom: 1px solid var(--vscode-panel-border);
-                padding-bottom: 10px;
-            }
-            button {
-                background-color: var(--vscode-button-background);
-                color: var(--vscode-button-foreground);
-                border: none;
-                padding: 10px 20px;
-                margin: 5px;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 14px;
-            }
-            button:hover {
-                background-color: var(--vscode-button-hoverBackground);
-            }
-            .response-container {
-                margin-top: 20px;
-                padding: 15px;
-                background-color: var(--vscode-textCodeBlock-background);
-                border: 1px solid var(--vscode-panel-border);
-                border-radius: 5px;
-                font-family: 'Courier New', monospace;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            }
-            .input-group {
-                margin: 20px 0;
-            }
-            input[type="text"] {
-                background-color: var(--vscode-input-background);
-                color: var(--vscode-input-foreground);
-                border: 1px solid var(--vscode-input-border);
-                padding: 8px;
-                width: 300px;
-                margin-right: 10px;
-            }
-            .status {
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                margin-right: 10px;
-            }
-            .status.online {
-                background-color: #4CAF50;
-            }
-            .status.offline {
-                background-color: #f44336;
-            }
-            .header {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                height: 100vh;
+                overflow: hidden;
                 display: flex;
+                justify-content: center;
                 align-items: center;
-                margin-bottom: 20px;
+            }
+
+            .simulator-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
             }
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <span class="status" id="status"></span>
-                <h1>Webulator Control Panel</h1>
-            </div>
-            
-            <p>This is a demonstration of VSCode extension communicating with an HTTP server.</p>
-            
-            <div>
-                <button onclick="fetchHello()">Say Hello</button>
-                <button onclick="fetchStatus()">Get Status</button>
-                <button onclick="clearResponse()">Clear</button>
-            </div>
-            
-            <div class="input-group">
-                <input type="text" id="echoInput" placeholder="Enter message to echo...">
-                <button onclick="sendEcho()">Send Echo</button>
-            </div>
-            
-            <div class="response-container" id="response">
-                Click a button to see the response from the HTTP server...
-            </div>
+        <div class="simulator-container">
+            <webulator-simulator name="iPhone 16" id="deviceSimulator"></webulator-simulator>
         </div>
 
         <script>
-            const SERVER_URL = 'http://localhost:3000';
-            
-            async function makeRequest(endpoint, options = {}) {
-                try {
-                    updateStatus('online');
-                    const response = await fetch(SERVER_URL + endpoint, {
-                        ...options,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...options.headers
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(\`HTTP error! status: \${response.status}\`);
-                    }
-                    
-                    const data = await response.json();
-                    displayResponse(data);
-                } catch (error) {
-                    updateStatus('offline');
-                    displayResponse({ error: error.message });
-                }
-            }
-            
-            function fetchHello() {
-                makeRequest('/api/hello');
-            }
-            
-            function fetchStatus() {
-                makeRequest('/api/status');
-            }
-            
-            function sendEcho() {
-                const input = document.getElementById('echoInput');
-                const message = input.value.trim();
-                
-                if (!message) {
-                    displayResponse({ error: 'Please enter a message to echo' });
-                    return;
-                }
-                
-                makeRequest('/api/echo', {
-                    method: 'POST',
-                    body: JSON.stringify({ message: message })
-                });
-                
-                input.value = '';
-            }
-            
-            function displayResponse(data) {
-                const responseElement = document.getElementById('response');
-                responseElement.textContent = JSON.stringify(data, null, 2);
-            }
-            
-            function clearResponse() {
-                document.getElementById('response').textContent = 'Response cleared...';
-            }
-            
-            function updateStatus(status) {
-                const statusElement = document.getElementById('status');
-                statusElement.className = 'status ' + status;
-            }
-            
-            // Initialize with a hello request
+            ${simulatorScript}
+        </script>
+
+        <script>
+            // Wait for the simulator to load, then load default content
             setTimeout(() => {
-                fetchHello();
-            }, 1000);
+                const simulator = document.getElementById('deviceSimulator');
+                if (simulator) {
+                    // Load a simple example page
+                    simulator.navigate('https://httpbin.org/html');
+                }
+            }, 2000);
         </script>
     </body>
     </html>`;
@@ -348,4 +237,4 @@ function deactivate() {
 module.exports = {
     activate,
     deactivate
-}; 
+};

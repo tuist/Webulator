@@ -1,0 +1,17 @@
+{
+  "name": "@tuist/webulator-simulator",
+  "version": "1.0.0",
+  "description": "A web component to load a simulator in the browser",
+  "main": "simulator.js",
+  "files": [
+    "simulator.js"
+  ],
+  "keywords": [
+    "web-component",
+    "iphone",
+    "simulator",
+    "custom-element"
+  ],
+  "author": "Tuist",
+  "license": "MIT"
+} 
