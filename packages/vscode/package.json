@@ -1,0 +1,41 @@
+{
+  "name": "@tuist/webulator-vscode",
+  "displayName": "Webulator VSCode",
+  "description": "A VSCode extension that loads websites and runs HTTP servers for development.",
+  "version": "0.0.1",
+  "publisher": "tuist",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "webulator.start",
+        "title": "Start Webulator",
+        "category": "Webulator"
+      },
+      {
+        "command": "webulator.stop",
+        "title": "Stop Webulator",
+        "category": "Webulator"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+} 

@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Webulator",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/vscode/src/**/*.js"
+            ],
+            "preLaunchTask": null
+        }
+    ]
+} 
